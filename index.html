@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Gotita Limpia</title>
+<style>
+  :root{
+    --bg-sky:#dff3ff;
+    --card:#ffffff;
+    --accent:#0096c7;
+    --muted:#475569;
+    --shadow:0 8px 24px rgba(2,6,23,0.08);
+    --grass:#7cc576;
+    --cloud:#ffffff;
+    --sand:#d9c59a;
+    --gravel:#9a8f7a;
+    --carbon:#222222;
+    --cotton:#ffffff;
+    --water-dirty-top:#6b3f2a;
+    --water-dirty-bottom:#a56a3a;
+    --water-clean-top:#bce7ff;
+    --water-clean-bottom:#6fc2ff;
+    font-family:Inter, "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:linear-gradient(#dff3ff 0%, #eaf7ff 40%, #f3fff0 100%);color:#0b2447}
+  body{
+    display:flex;flex-direction:column;align-items:center;min-height:100vh;padding-bottom:32px;
+    background-image:
+      radial-gradient(1200px 300px at 10% 10%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.0) 40%),
+      radial-gradient(900px 260px at 80% 15%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.0) 38%);
+    background-repeat:no-repeat;
+  }
+  header{width:100%;max-width:1100px;padding:16px;border-radius:12px 12px 0 0;background:var(--accent);color:white;text-align:center;font-weight:700;box-shadow:var(--shadow);margin-top:20px;}
+  nav{width:100%;max-width:1100px;display:flex;gap:10px;justify-content:center;padding:12px;background:transparent}
+  nav button{border:0;padding:10px 14px;border-radius:10px;background:#f0f6fb;color:var(--muted);cursor:pointer;font-weight:700;}
+  nav button.active{background:var(--card);color:var(--accent);box-shadow:0 6px 18px rgba(0,150,200,0.12);border:1px solid rgba(0,0,0,0.03)}
+  .container{width:100%;max-width:1100px;margin:14px;padding:18px;display:block}
+  section{display:none}
+  section.active{display:block}
+  .wrap{display:grid;grid-template-columns:420px 1fr;gap:20px;align-items:start}
+  .card{background:var(--card);border-radius:14px;padding:18px;box-shadow:var(--shadow);overflow:hidden}
+  @media(max-width:920px){.wrap{grid-template-columns:1fr;padding:0}}
+  .filter-box{width:260px;border-radius:12px;overflow:hidden;margin:auto;background:linear-gradient(#ffffff,#f7fbff);box-shadow:inset 0 -6px 20px rgba(2,6,23,0.02)}
+  .layer{height:62px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
+  .layer.cotton{background:var(--cotton);color:#222}
+  .layer.gravel{background:linear-gradient(180deg,var(--gravel),#7b7060);color:#fff}
+  .layer.carbon{background:var(--carbon);color:#fff}
+  .layer.sand{background:linear-gradient(180deg,var(--sand),#bfae82);color:#222}
+  .kids{display:flex;gap:18px;justify-content:center;margin-top:12px}
+  .kid{width:130px;text-align:center}
+  .kid img{width:100px;border-radius:12px;display:block;margin:auto;box-shadow:0 8px 18px rgba(0,0,0,0.08)}
+  .bubble{margin-top:8px;background:#fff;padding:8px;border-radius:10px;box-shadow:0 6px 14px rgba(12,40,73,0.03);font-size:13px}
+  .controls .steps{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+  .step{display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;background:#f6fbff;border:1px dashed rgba(0,150,200,0.08)}
+  .num{width:34px;height:34px;border-radius:8px;background:#e6f8ff;color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800}
+  .btn-row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .btn{background:var(--accent);color:white;padding:10px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:700;box-shadow:0 8px 20px rgba(0,150,200,0.12)}
+  .btn.secondary{background:#f6f8fb;color:var(--muted);box-shadow:none;border:1px solid rgba(0,0,0,0.04)}
+  .gameArea{display:flex;flex-direction:column;align-items:center}
+  .cardGame{background:var(--card);border-radius:12px;padding:16px;box-shadow:var(--shadow);width:100%}
+  .game{display:grid;grid-template-columns:1fr 380px;gap:18px;align-items:start}
+  @media(max-width:920px){.game{grid-template-columns:1fr}}
+  .filter-tank{width:240px;height:380px;margin:6px auto;border-radius:12px;position:relative;background:linear-gradient(180deg,#f9fdff,#ecf9ff);border:2px dashed rgba(0,119,182,0.08);overflow:hidden;box-shadow:inset 0 6px 24px rgba(2,6,23,0.03)}
+  .tank-layer{height:25%;display:flex;align-items:center;justify-content:center;border-top:1px solid rgba(2,6,23,0.03);font-weight:700;color:var(--muted);font-size:14px}
+  .tank-layer.filled{color:#062a3b}
+  /* Importante: Transición de 3s para drenaje lento */
+  .water{position:absolute;left:0;right:0;bottom:0;height:0%;background:linear-gradient(180deg,var(--water-dirty-top),var(--water-dirty-bottom));transition:height 3s ease, background 1.5s ease;box-shadow:inset 0 6px 20px rgba(0,0,0,0.06);}
+  .materials{display:flex;flex-direction:column;gap:10px;padding:8px}
+  .mat{display:flex;gap:8px;align-items:center;padding:8px;border-radius:10px;background:#fff;border:1px solid rgba(2,6,23,0.04);cursor:grab}
+  .mat .swatch{width:44px;height:34px;border-radius:6px;flex:0 0 44px}
+  .mat strong{font-size:14px;color:#062a3b}
+  .result{margin-top:12px;padding:10px;border-radius:8px;background:#f8fffb;border:1px solid rgba(22,163,74,0.06)}
+  footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
+  .bubble-wrap{position:absolute;left:8px;right:8px;bottom:8px;pointer-events:none}
+  .bubble-wrap .bub{position:absolute;bottom:0;border-radius:50%;opacity:0.7}
+  @keyframes rise{0%{transform:translateY(0) scale(0.6);opacity:0.8}100%{transform:translateY(-260px) scale(1);opacity:0}}
+  
+  /* CSS para la Celebración */
+  @keyframes scaleUp {
+    0% { transform: translate(-50%,-50%) scale(0.5); opacity: 0; }
+    100% { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+  }
+  @keyframes spinAndBounce {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(360deg); }
+  }
+</style>
+</head>
+<body>
+
+<header>Gotita Limpia</header>
+
+<nav>
+  <button id="btnKids" class="active">🧒 Explicación</button>
+  <button id="btnGame">🎮 Juego</button>
+</nav>
+
+<div class="container">
+  <section id="kids" class="active">
+    <div class="wrap">
+      <div class="card">
+        <h2 style="margin:0 0 8px 0;color:#023e8a">Filtro casero — Capas</h2>
+        <div class="filter-box" id="filterVisual">
+          <div class="layer sand">Arena</div>
+          <div class="layer carbon">Carbón</div>
+          <div class="layer gravel">Grava</div>
+          <div class="layer cotton">Algodón</div>
+        </div>
+        <div class="kids">
+          <div class="kid">
+            <img src="https://cdn-icons-png.flaticon.com/512/921/921085.png" alt="Niña">
+            <div class="bubble" id="bubbleGirl">¡Hola! Yo te enseño cómo poner las capas.</div>
+            <div class="small">Niña — guía</div>
+          </div>
+          <div class="kid">
+            <img src="https://cdn-icons-png.flaticon.com/512/921/921071.png" style="transform:scaleX(-1);" alt="Niño">
+            <div class="bubble" id="bubbleBoy">Y yo te explico cómo usarlo correctamente.</div>
+            <div class="small">Niño — uso</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card controls">
+        <h3 style="margin:0;color:#023e8a">Paso a paso</h3>
+        <p style="margin:6px 0 12px 0;color:var(--muted)">Haz clic en cada paso para escuchar la explicación.</p>
+        <div class="btn-row">
+          <button id="playAll" class="btn">🔊 Reproducir todo</button>
+          <button id="demoKid" class="btn secondary">🎭 Diálogo Niños</button>
+        </div>
+        <div class="steps">
+          <div class="step"><div class="num">1</div><div>Coloca una capa de <b>algodón</b> en el fondo.</div><button class="btn secondary play" data-say="Primero colocamos una capa de algodón en el fondo del filtro.">▶</button></div>
+          <div class="step"><div class="num">2</div><div>Añade una capa de <b>grava</b> encima.</div><button class="btn secondary play" data-say="Ahora añadimos grava encima para mejorar el drenaje.">▶</button></div>
+          <div class="step"><div class="num">3</div><div>Agrega <b>carbón activado</b> para eliminar impurezas.</div><button class="btn secondary play" data-say="Después colocamos carbón activado para eliminar olores e impurezas.">▶</button></div>
+          <div class="step"><div class="num">4</div><div>Coloca <b>arena fina</b> como capa superior.</div><button class="btn secondary play" data-say="Por último colocamos arena fina como capa superior.">▶</button></div>
+          <div class="step"><div class="num">5</div><div>Vierte agua sucia arriba y recoge el agua limpia.</div><button class="btn secondary play" data-say="Ahora vierte el agua sucia en la parte superior y recoge el agua filtrada abajo.">▶</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="game">
+    <div class="cardGame">
+      <h3 style="text-align:center;margin:6px 0;color:#023e8a">🎮 Filtro de Agua — Juego Interactivo</h3>
+      <p style="text-align:center;margin:0 0 12px;color:var(--muted)">Arrastra los materiales a las capas del filtro y vierte agua sucia.</p>
+      <div class="game">
+        <div>
+          <div class="filter-tank" id="tank" aria-label="Filtro">
+            <div class="water" id="water"></div>
+          </div>
+          <div class="bubble-wrap" id="bwrap"></div>
+          <div style="text-align:center;margin-top:10px">
+            <button id="pourBtn" class="btn">💧 Verter agua sucia</button>
+            <button id="resetBtn" class="btn secondary">🔁 Reiniciar</button>
+          </div>
+          <div id="resultBox" class="result" style="display:none"><strong>Resultado:</strong> <span id="resultText"></span></div>
+        </div>
+        <aside>
+          <div style="text-align:center;margin-bottom:8px"><strong>Materiales</strong></div>
+          <div class="materials" id="materials"></div>
+          <div style="text-align:center;margin-top:10px;color:var(--muted)"><small>Arrastra un material y suéltalo en una capa del filtro.</small></div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="congratsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:100; backdrop-filter:blur(5px);">
+  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:30px; border-radius:15px; text-align:center; box-shadow:0 12px 30px rgba(0,150,200,0.3); max-width:90%; width:400px; animation:scaleUp 0.3s ease-out;">
+    <div id="medal" style="font-size:80px; animation:spinAndBounce 2s infinite ease-in-out;">🥇</div>
+    <h2 style="color:var(--accent); margin:10px 0;">¡FELICIDADES!</h2>
+    <p style="font-size:1.1em; color:#062a3b;">¡Has logrado una limpieza <strong>excelente</strong>!</p>
+    <p id="finalScoreText" style="font-weight:700; font-size:1.3em; margin-top:20px;"></p>
+    <button onclick="document.getElementById('congratsModal').style.display='none';" class="btn" style="margin-top:20px;">Cerrar</button>
+  </div>
+</div>
+
+<footer>Hecho para aprender jugando — Filtración de agua 🌍</footer>
+
+<script>
+const kidsSec = document.getElementById('kids');
+const gameSec = document.getElementById('game');
+const btnKids = document.getElementById('btnKids');
+const btnGame = document.getElementById('btnGame');
+
+btnKids.onclick = ()=>{ kidsSec.classList.add('active'); gameSec.classList.remove('active'); btnKids.classList.add('active'); btnGame.classList.remove('active');}
+btnGame.onclick = ()=>{ gameSec.classList.add('active'); kidsSec.classList.remove('active'); btnGame.classList.add('active'); btnKids.classList.remove('active');}
+
+// Voz pasos (General)
+function speak(text){ if(!window.speechSynthesis) return; window.speechSynthesis.cancel(); let u = new SpeechSynthesisUtterance(text); u.lang='es-MX'; window.speechSynthesis.speak(u);}
+document.querySelectorAll('.play').forEach(b=>b.onclick=()=>speak(b.dataset.say));
+document.getElementById('playAll').onclick = async ()=>{
+  const steps = document.querySelectorAll('.play');
+  for(const s of steps){ speak(s.dataset.say); await new Promise(r=>setTimeout(r,3800));}
+};
+
+// Voz pasos (Diálogo Niños - Sincronizado y Corregido)
+document.getElementById('demoKid').onclick = async ()=>{
+  const girl = document.getElementById('bubbleGirl'), boy = document.getElementById('bubbleBoy');
+  const lines=[
+    {g:"Primero colocamos algodón en el fondo.", b:"Después añadimos grava encima."},
+    {g:"Luego colocamos carbón activado.", b:"Y por último arena fina arriba."},
+    {g:"Ya está listo el filtro.", b:"Ahora puedes probarlo con agua sucia."}
+  ];
+
+  function speakWithVoice(text, voiceIndex) {
+    if(!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    let u = new SpeechSynthesisUtterance(text);
+    u.lang='es-MX'; 
+    
+    const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('es'));
+    if (voices.length > 0) {
+      u.voice = voices[voiceIndex % voices.length]; 
+    }
+    window.speechSynthesis.speak(u);
+    
+    return new Promise(resolve => {
+        u.onend = resolve;
+        u.onerror = () => resolve(); 
+        setTimeout(resolve, 4500); 
+    });
+  }
+
+  // --- Ejecución del Diálogo Sincronizado ---
+  girl.textContent = '...'; 
+  boy.textContent = '...';
+
+  for(let i = 0; i < lines.length; i++){
+    const l = lines[i];
+
+    // 1. Habla la Niña (Voz 0)
+    girl.textContent = l.g;
+    await speakWithVoice(l.g, 0); 
+
+    // 2. Habla el Niño (Voz 1)
+    boy.textContent = l.b;
+    await speakWithVoice(l.b, 1); 
+    
+    if (i < lines.length - 1) {
+        girl.textContent = '...'; 
+        boy.textContent = '...';
+        await new Promise(r=>setTimeout(r, 400));
+    }
+  }
+  
+  // Restablecer diálogos iniciales al finalizar
+  girl.textContent = "¡Hola! Yo te enseño cómo poner las capas."; 
+  boy.textContent = "Y yo te explico cómo usarlo correctamente.";
+};
+
+
+// Juego
+/* -----------------------
+   Juego: materiales y tanque 
+   ----------------------- */
+const MATERIALS = [
+  { id:'algodon', name:'Algodón', desc:'Atrapa sedimentos finos', color:'#ffffff' },
+  { id:'grava',  name:'Grava',  desc:'Retiene piedras grandes', color:'#9a8f7a' },
+  { id:'carbon', name:'Carbón', desc:'Elimina olores y químicos', color:'#222222' },
+  { id:'arena',  name:'Arena',  desc:'Filtra partículas pequeñas', color:'#d9c59a' }
+];
+
+const materialsContainer = document.getElementById('materials');
+const tank = document.getElementById('tank');
+const water = document.getElementById('water');
+const bwrap = document.getElementById('bwrap');
+const pourBtn = document.getElementById('pourBtn');
+const resetBtn = document.getElementById('resetBtn');
+const resultBox = document.getElementById('resultBox');
+const resultText = document.getElementById('resultText');
+
+let layers = Array(4).fill(null); 
+const correctOrder = ['algodon', 'grava', 'carbon', 'arena']; 
+
+/* Crear lista de materiales (draggables) */
+function createMaterialEl(mat){
+  const el = document.createElement('div');
+  el.className = 'mat';
+  el.draggable = true;
+  el.innerHTML = `<div class="swatch" style="background:${mat.color};border:1px solid rgba(0,0,0,0.06)"></div><div><strong>${mat.name}</strong><div style="font-size:12px;color:var(--muted)">${mat.desc}</div></div>`;
+  el.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', mat.id));
+  return el;
+}
+MATERIALS.forEach(m => materialsContainer.appendChild(createMaterialEl(m)));
+
+/* Renderizar capas dentro del tanque (0=Fondo, 3=Cima) */
+function renderLayers(){
+  tank.querySelectorAll('.tank-layer').forEach(n => n.remove());
+  
+  for(let i = 0; i < 4; i++){
+    const div = document.createElement('div');
+    div.className = 'tank-layer';
+    div.dataset.index = i;
+    const pos = i === 0 ? ' (Fondo)' : (i === 3 ? ' (Cima)' : '');
+    div.textContent = layers[i] ? layers[i].name + pos : 'Capa vacía' + pos;
+    
+    if(layers[i]){
+      div.classList.add('filled');
+      div.style.background = layers[i].color;
+      div.style.color = (layers[i].id === 'algodon' || layers[i].id === 'arena') ? '#062a3b' : '#ffffff';
+    } else {
+      div.style.background = 'transparent';
+    }
+
+    div.addEventListener('dragover', e => e.preventDefault());
+    div.addEventListener('drop', e=>{
+      e.preventDefault();
+      const id = e.dataTransfer.getData('text/plain');
+      const mat = MATERIALS.find(m=>m.id === id);
+      layers[i] = mat; 
+      renderLayers();
+    });
+
+    tank.prepend(div); 
+  }
+}
+renderLayers();
+
+/* Añade animación de burbujas sutil cuando filtra */
+function spawnBubbles(){
+  bwrap.innerHTML = '';
+  const count = 6;
+  for(let i=0;i<count;i++){
+    const b = document.createElement('div');
+    const size = 8 + Math.random()*14;
+    b.className = 'bub';
+    b.style.width = size + 'px';
+    b.style.height = size + 'px';
+    b.style.left = (10 + Math.random()*80) + '%';
+    b.style.background = 'rgba(255,255,255,0.65)';
+    b.style.animation = `rise ${1.8 + Math.random()*1.2}s linear`;
+    b.style.opacity = 0.8;
+    bwrap.appendChild(b);
+    (function(node){
+      setTimeout(()=>{ if(node.parentNode) node.parentNode.removeChild(node); }, 3000);
+    })(b);
+  }
+}
+  
+/* Función que simula el filtrado y ejecuta la celebración */
+pourBtn.addEventListener('click', async ()=>{
+  const filled = layers.filter(x => x);
+  if(filled.length < 2) { alert('Agrega al menos 2 materiales al filtro.'); return; }
+  resultBox.style.display = 'none';
+  document.getElementById('congratsModal').style.display='none'; 
+
+  // 1. Mostrar Agua Sucia (Subida Rápida)
+  water.style.background = 'linear-gradient(180deg,var(--water-dirty-top),var(--water-dirty-bottom))';
+  water.style.transition = 'height 0.5s ease'; 
+  water.style.height = '100%';
+  spawnBubbles();
+  
+  await new Promise(r=>setTimeout(r, 800)); 
+  
+  water.style.transition = 'height 3s ease, background 1.5s ease';
+
+  // 2. Proceso de Filtrado
+  let dirt = 100;
+  for(let i = 3; i >= 0; i--){
+    const layer = layers[i];
+    if(!layer) continue;
+    
+    await new Promise(r=>setTimeout(r, 600)); 
+    
+    // Poder de limpieza
+    if(layer.id === 'grava'){ dirt -= 18; }
+    if(layer.id === 'arena'){ dirt -= 28; }
+    if(layer.id === 'algodon'){ dirt -= 22; }
+    if(layer.id === 'carbon'){ dirt -= 35; }
+    
+    spawnBubbles(); 
+  }
+
+  // --- Lógica de Bonificación/Penalización por orden ---
+  let sequenceBonus = 0;
+  let isCorrectSequence = true;
+  if (filled.length === 4) {
+      for (let i = 0; i < 4; i++) {
+          if (layers[i].id !== correctOrder[i]) {
+              isCorrectSequence = false;
+              break;
+          }
+      }
+      if (isCorrectSequence) {
+          sequenceBonus = 15; 
+      } else {
+          sequenceBonus = -5;
+      }
+  }
+
+  const baseClean = Math.max(0, 100 - dirt);
+  const finalClean = Math.min(100, Math.max(0, baseClean + sequenceBonus));
+  
+  // 3. Aclarado y Drenaje
+  const color = finalClean > 85 ? 'linear-gradient(180deg,var(--water-clean-top),var(--water-clean-bottom))'
+                          : (finalClean > 50 ? 'linear-gradient(180deg,#c2e7ff,#8fd1ff)' : 'linear-gradient(180deg,#7a5230,#6b3f2a)');
+
+  water.style.background = color; 
+  water.style.height = '0%'; 
+  
+  await new Promise(r=>setTimeout(r, 3000)); 
+
+  // 4. Mostrar Resultado
+  const finalScoreTextContent = `Tu agua quedó ${finalClean.toFixed(0)}% limpia. ${finalClean > 85 ? '¡Excelente filtro y orden!' : 'Puedes mejorar la limpieza o el orden de tus capas.'}`;
+  
+  resultBox.style.display = 'block';
+  resultText.textContent = finalScoreTextContent;
+  
+    // 5. ¡Ejecutar Celebración si la limpieza es > 80%!
+  if (finalClean > 80) {
+      document.getElementById('finalScoreText').textContent = `Nivel de Limpieza: ${finalClean.toFixed(0)}%`;
+      document.getElementById('congratsModal').style.display='flex';
+  }
+});
+  /* Reset */
+resetBtn.addEventListener('click', ()=>{
+  layers = Array(4).fill(null);
+  renderLayers();
+  water.style.height = '0%';
+  resultBox.style.display = 'none';
+  bwrap.innerHTML = '';
+  document.getElementById('congratsModal').style.display='none';
+});
+
+/* Mejoras: teclas rápidas para probar (opcional) */
+window.addEventListener('keydown', e=>{
+  if(e.key === 'g') { 
+    layers = [MATERIALS.find(m=>m.id==='algodon'), 
+              MATERIALS.find(m=>m.id==='grava'),   
+              MATERIALS.find(m=>m.id==='carbon'),  
+              MATERIALS.find(m=>m.id==='arena')];  
+    renderLayers();
+  }
+});
+/* Accesibilidad: permitir click en capas de explicación para resaltarlas (visual) */
+document.querySelectorAll('.filter-box .layer').forEach((el,i)=>{
+  el.addEventListener('click', ()=> {
+    el.animate([{transform:'scale(1)'},{transform:'scale(1.03)'},{transform:'scale(1)'}],{duration:350});
+    speak(el.textContent + '. ' + (i===3?'Capa que retiene sedimentos gruesos.':''));
+  });
+});
+</script>
+</body>
+</html>
